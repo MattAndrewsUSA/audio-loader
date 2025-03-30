@@ -151,6 +151,16 @@ npm install ../audio-loader
 
 (Alternatively, publish it privately or use npm link)
 
+
+
+DO THIS:
+
+npm install github:MattAndrewsUSA/AudioLoader
+
+
+
+
+
 7. Use Plugin in FaxCam/src/js/audioFax.js:
 
 // audioFax.js - Using Custom Plugin
