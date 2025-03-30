@@ -6,20 +6,33 @@
     "tags": [],
     "methods": [
       {
-        "name": "echo",
-        "signature": "(options: { value: string; }) => Promise<{ value: string; }>",
+        "name": "loadBundledSound",
+        "signature": "(options: { filename: string; }) => Promise<{ base64Data: string; }>",
         "parameters": [
           {
             "name": "options",
-            "docs": "",
-            "type": "{ value: string; }"
+            "docs": "- Must include the filename.",
+            "type": "{ filename: string; }"
           }
         ],
-        "returns": "Promise<{ value: string; }>",
-        "tags": [],
-        "docs": "",
+        "returns": "Promise<{ base64Data: string; }>",
+        "tags": [
+          {
+            "name": "param",
+            "text": "options - Must include the filename."
+          },
+          {
+            "name": "returns",
+            "text": "A promise resolving with the base64 encoded data of the file."
+          },
+          {
+            "name": "rejects",
+            "text": "If the file cannot be found or read."
+          }
+        ],
+        "docs": "Loads a sound file from the app bundle's web assets.",
         "complexTypes": [],
-        "slug": "echo"
+        "slug": "loadbundledsound"
       }
     ],
     "properties": []

@@ -1,9 +1,9 @@
 import { WebPlugin } from '@capacitor/core';
 import type { AudioLoaderPlugin } from './definitions';
 export declare class AudioLoaderWeb extends WebPlugin implements AudioLoaderPlugin {
-    echo(options: {
-        value: string;
+    loadBundledSound(options: {
+        filename: string;
     }): Promise<{
-        value: string;
+        base64Data: string;
     }>;
 }

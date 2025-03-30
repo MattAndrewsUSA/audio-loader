@@ -13,24 +13,26 @@ npx cap sync
 
 <docgen-index>
 
-* [`echo(...)`](#echo)
+* [`loadBundledSound(...)`](#loadbundledsound)
 
 </docgen-index>
 
 <docgen-api>
 <!--Update the source file JSDoc comments and rerun docgen to update the docs below-->
 
-### echo(...)
+### loadBundledSound(...)
 
 ```typescript
-echo(options: { value: string; }) => Promise<{ value: string; }>
+loadBundledSound(options: { filename: string; }) => Promise<{ base64Data: string; }>
 ```
 
-| Param         | Type                            |
-| ------------- | ------------------------------- |
-| **`options`** | <code>{ value: string; }</code> |
+Loads a sound file from the app bundle's web assets.
 
-**Returns:** <code>Promise&lt;{ value: string; }&gt;</code>
+| Param         | Type                               | Description                  |
+| ------------- | ---------------------------------- | ---------------------------- |
+| **`options`** | <code>{ filename: string; }</code> | - Must include the filename. |
+
+**Returns:** <code>Promise&lt;{ base64Data: string; }&gt;</code>
 
 --------------------
 

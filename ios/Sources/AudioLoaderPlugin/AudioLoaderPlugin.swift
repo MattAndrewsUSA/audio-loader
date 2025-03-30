@@ -11,7 +11,7 @@ public class AudioLoaderPlugin: CAPPlugin {
         }
 
         // Construct the path within the 'public/assets/sounds' directory inside the main bundle
-        let soundsDirectory = "public/assets/sounds" // This is where Capacitor copies web assets
+        let soundsDirectory = "assets/sounds" // This is where Capacitor copies web assets
 
         // Use Bundle.main.url(forResource:withExtension:subdirectory:) which is generally safer
         // Need to split filename into name and extension

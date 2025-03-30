@@ -7,9 +7,9 @@ const AudioLoader = core.registerPlugin('AudioLoader', {
 });
 
 class AudioLoaderWeb extends core.WebPlugin {
-    async echo(options) {
-        console.log('ECHO', options);
-        return options;
+    async loadBundledSound(options) {
+        console.warn('AudioLoader is primarily for native platforms.', options);
+        throw this.unimplemented('loadBundledSound - Not implemented on web.');
     }
 }
 
