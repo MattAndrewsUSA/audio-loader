@@ -1,10 +1,9 @@
 import { WebPlugin } from '@capacitor/core';
-
 import type { AudioLoaderPlugin } from './definitions';
 
-export class AudioLoaderWeb extends WebPlugin implements AudioLoaderPlugin {
-  async echo(options: { value: string }): Promise<{ value: string }> {
-    console.log('ECHO', options);
-    return options;
+export class MyAudioLoaderWeb extends WebPlugin implements AudioLoaderPlugin {
+  async loadBundledSound(options: { filename: string }): Promise<{ base64Data: string }> {
+    console.warn('MyAudioLoader is primarily for native platforms.', options);
+    throw this.unimplemented('loadBundledSound - Not implemented on web.');
   }
 }

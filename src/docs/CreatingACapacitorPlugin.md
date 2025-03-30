@@ -38,11 +38,11 @@ This creates a new folder (e.g., audio-loader) with the plugin structure.
 url https://github.com/MattAndrewsUSA/AudioLoader
 
 
-2. Define Interface (my-audio-loader/src/definitions.ts):
+2. Define Interface (audio-loader/src/definitions.ts):
 
 This file defines what methods your JavaScript code can call.
 
-export interface MyAudioLoaderPlugin {
+export interface AudioLoaderPlugin {
   /**
    * Loads a sound file from the app bundle's web assets.
    * @param options - Must include the filename.
@@ -52,21 +52,21 @@ export interface MyAudioLoaderPlugin {
   loadBundledSound(options: { filename: string }): Promise<{ base64Data: string }>;
 }
 
-3. Implement Web Version (my-audio-loader/src/web.ts):
+3. Implement Web Version (audio-loader/src/web.ts):
 
 * Since this is specifically for the iOS native issue, the web version can just throw an error.
 
 import { WebPlugin } from '@capacitor/core';
-import type { MyAudioLoaderPlugin } from './definitions';
+import type { AudioLoaderPlugin } from './definitions';
 
-export class MyAudioLoaderWeb extends WebPlugin implements MyAudioLoaderPlugin {
+export class AudioLoaderWeb extends WebPlugin implements AudioLoaderPlugin {
   async loadBundledSound(options: { filename: string }): Promise<{ base64Data: string }> {
-    console.warn('MyAudioLoader is primarily for native platforms.', options);
+    console.warn('AudioLoader is primarily for native platforms.', options);
     throw this.unimplemented('loadBundledSound - Not implemented on web.');
   }
 }
 
-4. Implement Native iOS Version (my-audio-loader/ios/Plugin/MyAudioLoaderPlugin.swift):
+4. Implement Native iOS Version (-audio-loader/ios/Plugin/AudioLoaderPlugin.swift):
 
 * THIS IS THE CORE FIX. This Swift code uses reliable native APIs to find the file within the .app bundle.
 
@@ -74,8 +74,8 @@ export class MyAudioLoaderWeb extends WebPlugin implements MyAudioLoaderPlugin {
 import Foundation
 import Capacitor
 
-@objc(MyAudioLoaderPlugin)
-public class MyAudioLoaderPlugin: CAPPlugin {
+@objc(AudioLoaderPlugin)
+public class AudioLoaderPlugin: CAPPlugin {
 
     @objc func loadBundledSound(_ call: CAPPluginCall) {
         guard let filename = call.getString("filename") else {
@@ -98,7 +98,7 @@ public class MyAudioLoaderPlugin: CAPPlugin {
             // Fallback: Try constructing path directly (less reliable but worth trying if subdirectory fails)
             let directPath = Bundle.main.bundlePath + "/" + soundsDirectory + "/" + filename
             if FileManager.default.fileExists(atPath: directPath) {
-                print("MyAudioLoaderPlugin: Found file via direct path: \(directPath)")
+                print("AudioLoaderPlugin: Found file via direct path: \(directPath)")
                 do {
                      let fileData = try Data(contentsOf: URL(fileURLWithPath: directPath))
                      let base64Data = fileData.base64EncodedString()
@@ -109,14 +109,14 @@ public class MyAudioLoaderPlugin: CAPPlugin {
                      return
                 }
             } else {
-                 print("MyAudioLoaderPlugin: File not found using Bundle.main.url or direct path.")
+                 print("AudioLoaderPlugin: File not found using Bundle.main.url or direct path.")
                  call.reject("File '\(filename)' not found in bundle directory '\(soundsDirectory)'")
                  return
             }
         }
 
         // If Bundle.main.url succeeded:
-         print("MyAudioLoaderPlugin: Found file via Bundle.main.url: \(bundledUrl.path)")
+         print("AudioLoaderPlugin: Found file via Bundle.main.url: \(bundledUrl.path)")
         do {
             let fileData = try Data(contentsOf: bundledUrl)
             let base64Data = fileData.base64EncodedString()
@@ -127,7 +127,7 @@ public class MyAudioLoaderPlugin: CAPPlugin {
     }
 }
 
-5. Register Plugin (my-audio-loader/ios/Plugin/MyAudioLoaderPlugin.m):
+5. Register Plugin (audio-loader/ios/Plugin/AudioLoaderPlugin.m):
 
 * Make sure this file correctly registers your method.
 
@@ -136,7 +136,7 @@ public class MyAudioLoaderPlugin: CAPPlugin {
 
 // Define the plugin using the CAP_PLUGIN Macro, and
 // each method the plugin supports using the CAP_PLUGIN_METHOD macro.
-CAP_PLUGIN(MyAudioLoaderPlugin, "MyAudioLoader",
+CAP_PLUGIN(AudioLoaderPlugin, "AudioLoader",
            CAP_PLUGIN_METHOD(loadBundledSound, CAPPluginReturnPromise);
 )
 
@@ -146,8 +146,8 @@ CAP_PLUGIN(MyAudioLoaderPlugin, "MyAudioLoader",
 
 Install the local plugin using its path:
 
-# Replace ../my-audio-loader with the actual relative path to your plugin folder
-npm install ../my-audio-loader
+# Replace ../audio-loader with the actual relative path to your plugin folder
+npm install ../audio-loader
 
 (Alternatively, publish it privately or use npm link)
 
@@ -156,8 +156,8 @@ npm install ../my-audio-loader
 // audioFax.js - Using Custom Plugin
 
 // ** STEP 1: Add Import for your custom plugin **
-// (Replace 'my-audio-loader' if your package name is different)
-import { MyAudioLoader } from 'my-audio-loader';
+// (Replace 'audio-loader' if your package name is different)
+import { AudioLoader } from 'audio-loader';
 
 // Remove Capacitor Core/Filesystem imports if no longer needed elsewhere in this file
 // import { Capacitor } from '@capacitor/core';
@@ -204,20 +204,20 @@ export class FaxMechanicalSounds {
         // Use Conditional Logic
         if (isNativeIOS) {
             // ------------- NATIVE iOS (Use Custom Plugin) -------------
-            console.log('Loading audio files using MyAudioLoader plugin (Native iOS)...');
+            console.log('Loading audio files usingAudioLoader plugin (Native iOS)...');
 
              // Check if the custom plugin seems available
-             if (!MyAudioLoader) {
-                   console.error("MyAudioLoader plugin not found! Cannot load audio natively.");
+             if (!AudioLoader) {
+                   console.error("AudioLoader plugin not found! Cannot load audio natively.");
                    // Fallback or throw error - for now, let Promise.all handle empty loadPromises
                    loadPromises = []; // Ensure loadPromises is an empty array
              } else {
                   // Create promises for each file using the custom plugin
                   loadPromises = Object.entries(soundFiles).map(async ([key, filename]) => {
                       try {
-                          console.log(`[MyAudioLoader] Requesting ${filename}`);
+                          console.log(`[AudioLoader] Requesting ${filename}`);
                           // Call the custom plugin
-                          const result = await MyAudioLoader.loadBundledSound({ filename: filename });
+                          const result = await AudioLoader.loadBundledSound({ filename: filename });
                           const base64Data = result.base64Data;
 
                           // --- Conversion logic from Base64 ---
@@ -233,11 +233,11 @@ export class FaxMechanicalSounds {
                           return [key, await this.audioContext.decodeAudioData(bytes.buffer)];
 
                       } catch (error) {
-                           console.error(`[MyAudioLoader] Failed to load ${filename}:`, error);
+                           console.error(`[AudioLoader] Failed to load ${filename}:`, error);
                            throw error; // Propagate error
                       }
                   }); // End of .map()
-             } // End of if/else checking MyAudioLoader existence
+             } // End of if/else checking AudioLoader existence
 
         } else {
             // ------------- WEB & ANDROID (Use Fetch) -------------
@@ -333,9 +333,9 @@ function isIOS() {
 
 Summary of Changes in this _loadAudioFiles:
 
-1. Import Added: import { MyAudioLoader } from 'my-audio-loader';
+1. Import Added: import { AudioLoader } from 'audio-loader';
 
-2. Native iOS Block Changed: Instead of using Filesystem.readFile, it now calls await MyAudioLoader.loadBundledSound({ filename: filename });.
+2. Native iOS Block Changed: Instead of using Filesystem.readFile, it now calls await AudioLoader.loadBundledSound({ filename: filename });.
 
 3. Data Conversion: It takes the base64Data returned by the plugin and converts it to an ArrayBuffer using atob and Uint8Array.
 
@@ -343,6 +343,6 @@ Summary of Changes in this _loadAudioFiles:
 
 5. Common Processing: Remains the same, handling the results from Promise.all.
 
-6. Plugin Check: Added a basic check (if (!MyAudioLoader)) just in case the plugin isn't registered correctly.
+6. Plugin Check: Added a basic check (if (!AudioLoader)) just in case the plugin isn't registered correctly.
 
 
